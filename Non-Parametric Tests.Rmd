@@ -1,0 +1,883 @@
+---
+output:
+  word_document: default
+---
+```{r}
+library(data.table)
+library(PMCMR)
+library(userfriendlyscience)
+library(PASWR2)
+library(psych)
+library(BSDA)
+```
+
+---
+title: "Homework 4 and 5 combined"
+author: "Mitesh Ranmal Jain"
+date: "11/16/2019"
+---
+
+## Question 1
+
+```{r}
+Prob_Type_1 <- (1 - (0.2+0.3))
+
+Prob_Type_2 <- (1 - (0.2 + 0.1 + 0.1 + 0.2 + 0.1))
+```
+#### Answer:
+Probability of Type I error is 0.5.
+Probability of type II error is 
+
+## Question 2
+
+$$H_0 : \mu \ge  32 $$
+$$H_1 : \mu <  32$$
+
+```{r}
+
+Question2 <- read.csv("Question2.csv")
+smoke_break_avg <- mean(Question2$Minutes)
+smoke_break_std <- sd(Question2$Minutes)
+prev_break_avg = 32
+prev_break_sd = 8
+n <- nrow(Question2)
+
+t.test(Question2$Minutes, alternative = "less", mu = 32)
+```
+
+We reject $H_0$ and accept mean time will be less than 32 minutes. 
+
+
+```{r}
+z <-(smoke_break_avg - prev_break_avg)/(prev_break_sd/sqrt(n))
+
+p_sample <- pnorm(z)
+
+z_critical <- qnorm(0.5)
+
+x_critical <- 32 + z_critical*prev_break_sd/sqrt(n)
+
+Type_2_Error_Prob <- 1 - pnorm(x_critical, mean = 30, prev_break_sd/sqrt(n))
+```
+#### Answer:
+
+## Question 3
+
+$\mu_0 : Mean\ of\ sales\ at\  \$9$
+$\mu_1 : Mean\ of\ sales\ at\  \$10$
+$\mu_2 : Mean\ of\ sales\ at\  \$11$
+
+$$H_0 : \mu_0 = \mu_1 = \mu_2$$
+$$H_1 : Not\ all\ \mu\ are\ equal$$
+
+```{r}
+
+mean_sales_9 =  153.60
+sd_sales_9 = 25.57
+n_sales_9 = 20
+
+mean_sales_10 = 151.50
+sd_sales_10 = 30.39
+n_sales_10 = 20
+
+mean_sales_11 = 133.25
+sd_sales_11 = 25.03
+n_sales_11 = 20
+
+grand_mean = (mean_sales_9 + mean_sales_10 + mean_sales_11)/3
+total_n = 60
+
+sst = (20*((mean_sales_9 - grand_mean)^2)) + (20*((mean_sales_10 - grand_mean)^2)) + (20*((mean_sales_11 - grand_mean)^2))
+
+sse = (19*((sd_sales_9)^2)) + (19*((sd_sales_10)^2)) + (19*((sd_sales_11)^2))
+
+mst = sst/2
+
+mse = sse/(60-3)
+
+f_statistic = mst/mse
+
+f_critical = qf(p = 0.05, df1 =  2, df2 = 57, lower.tail = FALSE)
+
+if(f_statistic > f_critical){
+  print("The manager should conclude that the sales volume WILL differ significantly if the new product is priced $9 or $11")
+} else {
+  print("The manager should conclude that the sales volume WILL NOT differ significantly if the new product is priced $9 or $11")
+}
+```
+
+$$H_0 : \mu_1 = \mu_2 $$
+$$H_1 : \mu\ are\ not\ equal$$
+```{r}
+grand_mean = (mean_sales_9 + mean_sales_10)/2
+total_n = 40
+
+sst = (20*((mean_sales_9 - grand_mean)^2)) + (20*((mean_sales_10 - grand_mean)^2))
+
+sse = (19*((sd_sales_9)^2)) + (19*((sd_sales_10)^2))
+
+mst = sst/2
+
+mse = sse/(40-2)
+
+f_statistic = mst/mse
+
+f_critical = qf(p = 0.05, df1 =  1, df2 = 38, lower.tail = FALSE)
+
+if(f_statistic > f_critical){
+  print("The manager should conclude that the sales volume WILL differ significantly if the new product is priced $9.")
+} else {
+  print("The manager should conclude that the sales volume WILL NOT differ significantly if the new product is priced $9.")
+}
+```
+$$H_0 : \mu_2 = \mu_3 $$
+$$H_1 : \mu\ are\ not\ equal$$
+```{r}
+grand_mean = (mean_sales_11 + mean_sales_10)/2
+total_n = 40
+
+sst = (20*((mean_sales_11 - grand_mean)^2)) + (20*((mean_sales_10 - grand_mean)^2))
+
+sse = (19*((sd_sales_11)^2)) + (19*((sd_sales_10)^2))
+
+mst = sst/2
+
+mse = sse/(40-2)
+
+f_statistic = mst/mse
+
+P_10_11 <- pf(f_statistic, 1, 38, lower.tail = FALSE)
+
+if(P_10_11 > 0.05){
+  print("The manager should conclude that the sales volume WILL differ significantly if the new product is priced $11.")
+} else {
+  print("The manager should conclude that the sales volume WILL NOT differ significantly if the new product is priced $11.")
+}
+```
+#### Answer:
+The sales volume will differ significantly if the product is priced at $11.
+
+## Question 4
+
+```{r}
+
+Question4 <- read.csv("Question4.csv")
+
+Cereal <- factor(Question4$Cereal)
+Age <- Question4$Age
+Income <- Question4$Income
+Education <- Question4$Education
+```
+
+$\mu_1 : Mean\ of\ cereal\ 1$
+$\mu_2 : Mean\ of\ cereal\ 2$
+$\mu_3 : Mean\ of\ cereal\ 3$
+$\mu_4 : Mean\ of\ cereal\ 4$
+
+
+### Part a.
+
+$$H_0 : \mu_1 = \mu_2 = \mu_3 = \mu_4$$
+$$H_1 : Not\ all\ \mu\ are\ equal$$
+
+```{r}
+
+model_4_a <- lm(Age ~ Cereal)
+residual_4_a <- resid(model_4_a)
+predict_4_a <- predict(model_4_a)
+
+## Test for normality
+
+nortest::ad.test(residual_4_a)
+
+hist(residual_4_a)
+```
+
+```{r}
+
+## Test for equal variances
+
+bartlett.test(Age ~ Cereal)
+
+boxplot(Age ~ Cereal)
+```
+
+```{r}
+
+oneway.test(Age ~ Cereal, var.equal = FALSE)
+```
+
+p-value is less than 0.05, hence we can conclude that there are differences between the ages of the consumers of the 4 different cereals.
+
+```{r}
+
+posthocTGH(Age, Cereal, method = "games-howell")
+```
+
+#### Answer: 
+There are differences between the ages of the consumers of the four cereals 
+
+### Part b.
+
+$$H_0 : \mu_1 = \mu_2 = \mu_3 = \mu_4$$
+$$H_1 : Not\ all\ \mu\ are\ equal$$
+
+```{r}
+
+model_4_b <- lm(Income ~ Cereal)
+residual_4_b <- resid(model_4_b)
+predict_4_b <- predict(model_4_b)
+
+## Test for normality
+
+nortest::ad.test(residual_4_b)
+
+hist(residual_4_b)
+```
+
+```{r}
+
+## Test for equal variances
+
+bartlett.test(Income ~ Cereal)
+
+boxplot(Income ~ Cereal)
+```
+
+```{r}
+
+ANOVA_4_b <- aov(Income ~ Cereal)
+summary(ANOVA_4_b)
+```
+p-value is less than 0.05, hence we can conclude that there are differences between the incomes of the consumers of the 4 different cereals.
+```{r}
+plot(TukeyHSD(ANOVA_4_b), las = 1)
+```
+
+#### Answer: 
+There are differences between the incomes of the consumers of the four cereals.
+
+### Part c.
+
+$$H_0 : \mu_1 = \mu_2 = \mu_3 = \mu_4$$
+$$H_1 : Not\ all\ \mu\ are\ equal$$
+
+```{r}
+
+model_4_c <- lm(Education ~ Cereal)
+residual_4_c <- resid(model_4_c)
+predict_4_c <- predict(model_4_c)
+
+## Test for normality
+
+nortest::ad.test(residual_4_c)
+
+hist(residual_4_c)
+```
+
+```{r}
+
+## Test for equal variances
+
+bartlett.test(Education ~ Cereal)
+
+boxplot(Education ~ Cereal)
+```
+
+```{r}
+
+ANOVA_4_c <- aov(Education ~ Cereal)
+summary(ANOVA_4_c)
+```
+```{r}
+plot(TukeyHSD(ANOVA_4_c), las = 1)
+```
+
+#### Answer: 
+There are NO differences between the education of the consumers of the four cereals.
+
+### Part d.
+
+```{r}
+
+```
+
+## Question 5
+$\mu_1 : Mean\ of\ diet\ 1$
+$\mu_2 : Mean\ of\ diet\ 2$
+$\mu_3 : Mean\ of\ diet\ 3$
+$\mu_4 : Mean\ of\ diet\ 4$
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ means\ differ$$
+
+```{r}
+
+Question5 <- read.csv("Question5.csv")
+
+Group <- factor(Question5$Group)
+Diet <- factor(Question5$Treatment)
+Weight_Loss <- Question5$WeightLoss
+
+model_5 <- lm(Weight_Loss ~ Group + Diet)
+resids_5 <- residuals(model_5)
+predict_5 <- predict(model_5)
+
+## Normality Tests
+
+nortest::ad.test(resids_5)
+
+qqnorm(resids_5)
+qqline(resids_5)
+```
+
+```{r}
+## Variance Tests
+
+plot(resids_5 ~ predict_5)
+
+car::leveneTest(Weight_Loss ~ Diet)
+
+car::leveneTest(Weight_Loss ~ Group)
+
+```
+```{r}
+ANOVA_5 <- aov(Weight_Loss ~ Group + Diet)
+summary(ANOVA_5)
+```
+
+```{r}
+TukeyHSD(ANOVA_5, which = 'Diet', ordered = TRUE, conf.level = 0.99)
+plot(TukeyHSD(ANOVA_5, which = 'Diet', ordered = TRUE, conf.level = 0.99))
+
+```
+### Answer:
+
+Randomized Block Design Model was used for this experiment.
+The p-values for the treatment(Diet) and blocks(Group) is NOT statitistically significant at 1% confidence level. So we can conclude that there is NO difference among the 4 diets and blocking was NOT meaningful.
+From this we can conclude that the experimental design was NOT sound.
+
+## Question 6
+
+```{r}
+Question6 <- read.csv("Question6.csv")
+
+stack_6_business <- Question6[, c(1,2)]
+stack_6_arts <- Question6[, c(1,3)]
+stack_6_science <- Question6[, c(1,4)]
+
+stack_6_business["Degree"] = "Business"
+stack_6_arts["Degree"] = "Arts"
+stack_6_science["Degree"] = "Science"
+
+names(stack_6_arts)[2] <- "Commission"
+names(stack_6_business)[2] <- "Commission"
+names(stack_6_science)[2] <- "Commission"
+
+stack_6 <- rbind(stack_6_arts, stack_6_business, stack_6_science)
+
+Group_6 <- factor(stack_6$Group)
+Commission <- stack_6$Commission
+Degree <- factor(stack_6$Degree)
+```
+
+#### Part a.
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ means\ differ$$
+
+```{r}
+model_6 <- lm(Commission ~ Group_6 + Degree)
+resids_6 <- residuals(model_6)
+predict_6 <- predict(model_6)
+
+## Normality Tests
+
+nortest::ad.test(resids_6)
+```
+```{r}
+hist(resids_6)
+```
+
+```{r}
+## Variance Tests
+
+plot(resids_6 ~ predict_6)
+```
+```{r}
+car::leveneTest(Commission ~ Degree)
+```
+```{r}
+car::leveneTest(Commission ~ Group_6)
+```
+
+```{r}
+Anova_6 <- aov(Commission ~ Group_6 + Degree)
+summary(Anova_6)
+```
+
+```{r}
+TukeyHSD(Anova_6, which = 'Degree', ordered = TRUE)
+plot(TukeyHSD(Anova_6, which = 'Degree', ordered = TRUE))
+```
+#### Answer:
+
+#### Part b.
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ means\ differ$$
+
+```{r}
+model_6_degree  <- lm(Commission ~ Degree)
+resids_6_degree <- residuals(model_6_degree)
+predict_6_degree <- predict(model_6_degree)
+
+## Normality Tests
+
+nortest::ad.test(resids_6_degree)
+```
+```{r}
+hist(resids_6_degree)
+```
+
+```{r}
+## Variance Tests
+
+plot(resids_6_degree ~ predict_6_degree)
+```
+```{r}
+car::leveneTest(Commission ~ Degree)
+```
+
+```{r}
+Anova_6_Degree <- aov(Commission ~ Degree)
+summary(Anova_6_Degree)
+```
+```{r}
+TukeyHSD(Anova_6_Degree, which = 'Degree', ordered = TRUE)
+plot(TukeyHSD(Anova_6_Degree, which = 'Degree', ordered = TRUE))
+```
+#### Answer: 
+If only degree is taken into account there is NO sufficient evidence to allow the recruiter to conclude that there are differences in sales ability between the holders of the three types of degrees.
+
+## Question 7
+
+### Test for differences between the levels of Age
+
+$$H_0 : Age\ has\ no\ effect\ on\ miles\ driven $$
+$$H_1 : Age\ has\ effect\ on\ miles\ driven $$
+
+### Test for differences between the levels of Gender
+
+$$H_0 : Gender\ has\ no\ effect\ on\ miles\ driven $$
+$$H_1 : Gender\ has\ effect\ on\ miles\ driven $$
+
+### Test for interaction between Age and Gender
+
+$$H_0 : Age\ and\ Gender\ do\ not\ interact\ to\ affect\ miles\ driven $$
+$$H_1 : Age\ and\ Gender\ do\ interact\ to\ affect\ miles\ driven $$
+
+```{r}
+
+Question7 <- read.csv("Question7.csv")
+
+test <- Question7
+Question7[1:20, 1] = "Males"
+Question7[21:40, 1] = "Females"
+
+Age1 <- Question7[, c(1,2)]
+Age1["Age"] = "Age1"
+names(Age1)[2] = "MilesDriven"
+names(Age1)[1] = "Gender"
+
+Age2 <- Question7[, c(1,3)]
+Age2["Age"] = "Age2"
+names(Age2)[2] = "MilesDriven"
+names(Age2)[1] = "Gender"
+
+Age3 <- Question7[, c(1,4)]
+Age3["Age"] = "Age3"
+names(Age3)[2] = "MilesDriven"
+names(Age3)[1] = "Gender"
+
+Age4 <- Question7[, c(1,5)]
+Age4["Age"] = "Age4"
+names(Age4)[2] = "MilesDriven"
+names(Age4)[1] = "Gender"
+
+Age5 <- Question7[, c(1,6)]
+Age5["Age"] = "Age5"
+names(Age5)[2] = "MilesDriven"
+names(Age5)[1] = "Gender"
+
+stack_7 <- rbind(Age1, Age2, Age3, Age4, Age5)
+
+Gender <- factor(stack_7$Gender)
+MilesDriven <- as.numeric(stack_7$MilesDriven)
+Age_7 <- factor(stack_7$Age)
+
+model_7 <- lm(MilesDriven ~ Gender + Age_7 + Gender*Age_7)
+resids_7 <- residuals(model_7)
+predicts_7 <- predict(model_7)
+
+## Test for normality
+
+nortest::ad.test(resids_7)
+shapiro.test(resids_7)
+
+hist(resids_7)
+
+## The data is normal
+```
+```{r}
+## Variance test
+
+car::leveneTest(MilesDriven ~ Gender)
+car::leveneTest(MilesDriven ~ Age_7)
+```
+```{r}
+## ANOVA
+
+ANOVA_7 <- aov(MilesDriven ~ Gender + Age_7 + Gender*Age_7)
+summary(ANOVA_7)
+
+interaction.plot(Age_7, Gender,  MilesDriven)
+```
+#### Answer:
+We do NOT have enough evidence to conclude that males and female drivers differ in the number of miles they drive.
+We CAN infer that there are differences between the age categories in the number of miles they drive
+
+
+## Question 8
+
+$$H_0 : p_1 = 0.105,\ p_2 = 0.219,\ p_3 =0.533,\ p_4 = 0.143 $$
+$$H_1 : Atleast\ one\ proportion\ differs\ from\ the\ proposed\ plan$$
+
+```{r}
+Observed_8 = c(0,20,83,52)
+Prob_8 = c(0.105,0.219,0.533,0.143)
+
+chisq.test(x = Observed_8,p = Prob_8)
+```
+#### Answer:
+At least 1 frequency after the contest differs from the proportions before the contest.
+
+## Question 9
+
+$H_0$: Market Direction and Day of the week are independent. 
+$H_1$: Market Direction and Day of the week are not independent.
+
+```{r}
+stack_9_data <- data.frame(c(rep(c('Down'),5),
+                             rep(c('Up'),5)), 
+                           rep(c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'),2),
+                           c(42,49,46,43,41,
+                             53,55,58,59,58))
+
+colnames(stack_9_data) <- c("Flux", "Day", "Return")
+
+stack_9_data <- stack_9_data[rep(seq_len(nrow(stack_9_data)), stack_9_data$Return),]
+
+chisq.test(stack_9_data$Flux, stack_9_data$Day)
+
+mosaicplot(~ Day + Flux, data = stack_9_data,
+            main = "Mosiac Level", xlab = "Day", ylab = "Flux",
+           col = c (18,3))
+
+```
+#### Answer:
+p-value is greater than 0.05 and we fail to reject $H_0$ i.e. Market Direction and Day of the week are independent.
+
+## Question 10
+$H_0$: The two population locations are the same
+
+$H_1$: The location of the assets of households with college degrees is to the right of the location of assets of households with some college
+
+```{r}
+Question10 <- read.csv("Question10.csv")
+
+Question10$EDCL <- factor(Question10$EDCL)
+
+Question10 <- Question10[Question10$EDCL == "4"|Question10$EDCL == "3",]
+
+EDCL <- factor(Question10$EDCL)
+ASSETS <- Question10$ASSET
+
+ASSETS <- as.numeric(gsub(",", "", ASSETS))
+
+boxplot(ASSETS ~ EDCL)
+```
+
+```{r}
+tapply(ASSETS, EDCL, sd)
+
+model_10 <- lm(ASSETS ~ EDCL)
+resids_10 <- residuals(model_10)
+preds_10 <- predict(model_10)
+
+nortest::ad.test(resids_10)
+
+hist(resids_10)
+
+car::leveneTest(ASSETS ~ EDCL)
+```
+
+```{r}
+### Transform using log
+
+Transformed_ASSETS <- log(ASSETS)
+
+model_10_transformed <- lm(Transformed_ASSETS ~ EDCL)
+resids_10_transformed <- residuals(model_10_transformed)
+preds_10_transformed <- predict(model_10_transformed)
+
+nortest::ad.test(resids_10_transformed)
+
+## The data is not normally distributed
+
+hist(resids_10_transformed)
+```
+
+```{r}
+## Test for variance
+
+car::leveneTest(Transformed_ASSETS ~ EDCL)
+
+## The variances are almost equal
+
+wilcox.test(Transformed_ASSETS ~ EDCL, alt = "less", paired = FALSE)
+```
+
+### Answer:
+There is enough evidence to conclude that heads of households with college degrees have more assets than those who have some college i.e. we reject $H_0$.
+
+## Question 11
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : All\ means\ differ$$
+
+```{r}
+Question11 <- read.csv("Question11.csv")
+stacked_11 <- stack(Question11)
+
+wait_time <- stacked_11$values
+campus <- stacked_11$ind
+
+model_11 <- lm(wait_time ~ campus)
+resids_11 <- residuals(model_11)
+predicts_11 <- predict(model_11)
+
+## Normality Test
+
+nortest::ad.test(resids_11)
+
+hist(resids_11)
+```
+
+```{r}
+## Test for constant variance
+
+bartlett.test(wait_time ~ campus)
+
+boxplot(wait_time ~ campus)
+```
+```{r}
+ANOVA_11 <- aov(wait_time ~ campus)
+summary(ANOVA_11)
+
+## There is significant difference in the mean wait time at the different campuses
+
+posthocTGH(wait_time, campus, method = "games-howell")
+
+TukeyHSD(ANOVA_11, las = 1)
+plot(TukeyHSD(ANOVA_11, las = 1))
+```
+
+#### Answer:
+There is evidence of a difference in waiting time.
+
+## Question 12
+$\mu_1 : Mean\ weight-loss\ of\ diet\ 1$
+$\mu_2 : Mean\ weight-loss\ of\ diet\ 2$
+$\mu_3 : Mean\ weight-loss\ of\ diet\ 3$
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ mwans\ differ$$
+
+```{r}
+Question12 <- read.csv("Question12.csv")
+
+stack_12 <- melt(data = Question12, id.vars = c("Person"), measure.vars = c("Original", "New.Recipe.1", "New.Recipe..2"))
+
+Rating <- stack_12$value
+Person <- factor(stack_12$Person)
+Recipe <- factor(stack_12$variable)
+
+model_12 <- lm(Rating ~ Recipe)
+resids_12 <- residuals(model_12)
+predicts_12 <- predict(model_12)
+
+nortest::ad.test(resids_12)
+
+## The data is normal
+```
+
+```{r}
+## Check for variance
+bartlett.test(Rating ~ Recipe)
+
+## The data satisies constant variance requirement
+```
+```{r}
+
+ANOVA_12 <- aov(Rating ~ Recipe + Person)
+summary(ANOVA_12)
+
+## There is significant difference in ratings at 5% significance level
+```
+```{r}
+TukeyHSD(ANOVA_12, which = 'Recipe', ordered = TRUE)
+```
+```{r}
+plot(TukeyHSD(ANOVA_12, which = 'Recipe', ordered = TRUE))
+```
+
+#### Answer:
+The original recipe and the New Recipe 2 differ in ratings.
+
+## Question 13
+
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ means\ differ$$
+
+```{r}
+Question13 <- read.csv("Question13.csv")
+
+## Test for normality
+
+stack_13 <- melt(Question13, id.vars = c("Year"), measure.vars = c("Growth", "Value"))
+
+Year <- stack_13$Year
+Investment <- stack_13$variable
+Annual_Return <- stack_13$value
+
+model_13 <- lm(Annual_Return ~ Year + Investment)
+resids_13 <- residuals(model_13)
+predicts_13 <- predict(model_13)
+
+hist(resids_13)
+
+nortest::ad.test(resids_13)
+
+## The data is normally distributed
+```
+
+```{r}
+## Test for variance
+
+bartlett.test(Annual_Return ~ Investment)
+
+## The test is satisfied
+```
+
+```{r}
+cor.test( as.numeric(Investment), as.numeric(Annual_Return))
+```
+
+#### Answer:
+The performance of the returns of these two funds were NOT similar over the 2007-2016 timeframe.
+
+## Question 14
+
+$$H_0 : \rho\ = 0$$
+$$H_1 : \rho\ \neq 0$$
+
+```{r}
+Question14 <- read.csv("Question14.csv")
+
+cor.test(x  = Question14$JOBLOSE, y = Question14$HRS1, method = "spearman")
+```
+#### Answer:
+There is a weak positive correlation between long hours worked and chances of losing one's job.
+
+## Question 15
+
+$$H_0 : The\ two\ brands'\ ratings\ are\ the\ same$$
+$$H_1 : The\ ratings\ of\ European\ Brand\ is\ greater\ than\ ratings\ of\ Domestic\ Brand$$
+
+```{r}
+Question15 <- read.csv("Question15.csv")
+
+SIGN.test(x = Question15$European,
+          y = Question15$Domestic,
+          alternative = "greater",
+          conf.level = 0.90)
+```
+#### Answer:
+The data provide sufficient evidence to infer that the European brand is perceived to be more effective than Domestic brand as the p-value is less than 0.90.
+
+## Question 16
+
+$$H_0 : All\ means\ are\ equal$$
+$$H_1 : Atleast\ two\ means\ differ$$
+
+```{r}
+Question16 <- read.csv("Question16.csv")
+ 
+stack__16 <- melt(data = Question16, id.vars = c("Title"), measure.vars = c("Amazon", "BN"))
+
+Title <- stack__16$Title
+Retailer <- stack__16$variable
+Cost <- stack__16$value
+
+model_16 <- lm(Cost ~ Retailer + Title)
+resids_16 <- residuals(model_16)
+predict_16 <- predict(model_16)
+
+## Normality Tests
+
+nortest::ad.test(resids_16)
+shapiro.test(resids_16)
+
+qqnorm(resids_16)
+qqline(resids_16)
+
+hist(resids_16)
+
+## Variance Tests
+
+bartlett.test(Cost ~ Retailer)
+
+car::leveneTest(Cost ~ Retailer)
+
+### Constant variance requirement satisfied for Diet
+
+ANOVA_16 <- aov(Cost ~ Retailer + Title)
+summary(ANOVA_16)
+
+TukeyHSD(ANOVA_16, which = 'Retailer', ordered = TRUE)
+```
+#### Answer:
+The 𝑝-values for both Retailer and Title are statistically significant. So, we conclude that there is a difference among the 2 retailers AND blocking was meaningful.
+
+## Question 17
+
+$H_0$: The data comes from a normal distribution.
+$H_1$: The data does not follow a normal distribution.
+
+```{r}
+observed_17 <- c(10, 18, 48, 16, 8)
+prob_1 <- pnorm(-1.5)
+prob_2 <- pnorm(-0.5) - pnorm(-1.5)
+prob_3 <- pnorm(0.5) - pnorm(-0.5)
+prob_4 <- pnorm(1.5) - pnorm(0.5)
+prob_5 <- pnorm(1.5, lower.tail = FALSE)
+
+probability_17 <- c(prob_1, prob_2, prob_3, prob_4, prob_5)
+
+chisq.test(x = observed_17, p = probability_17)
+```
+
+#### Answer:
+As p-value is less than 0.05, we fail to reject $H_0$ i.e. we can conclude that the data comes from a normal distribution.

@@ -1,0 +1,323 @@
+---
+title: 'BAX 441 002 - Assignment 1'
+author: "Mitesh R. Jain | 917883640"
+output:
+  word_document: default
+  word: default
+  pdf_document: default
+---
+
+## Question 1
+
+### Part a.
+
+```{r}
+n <- 115
+ques_list <- c(1,2,3,4)
+yes_list <- c(73, 81, 88, 66)
+no_list <- c(42, 34, 27,49)
+
+ques_1_a <- data.frame(cbind(ques_list, yes_list, no_list))
+ques_1_a <- `colnames<-`(ques_1_a, c("Question No.", "Yes", "No"))
+
+ques_1_a$p_hat <- (ques_1_a$Yes)/n
+
+# n*p_hat and n*(1-p_hat) >= 5
+
+z95 <- qnorm(0.975, mean = 0, sd = 1, lower.tail = TRUE)
+
+ques_1_a$l95 <- round((ques_1_a$p_hat - (z95 * sqrt(ques_1_a$p_hat * (1 - ques_1_a$p_hat)/n))), digits = 3)
+ques_1_a$r95 <- round((ques_1_a$p_hat + (z95 * sqrt(ques_1_a$p_hat * (1 - ques_1_a$p_hat)/n))), digits = 3)
+
+ques_1_a
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.1f %% and %.1f %% contains the true population proportion of all customers who find the Container Store more friendly than the other stores they shop in.", ques_1_a$l95[1]*100, ques_1_a$r95[1]*100)
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.1f %% and %.1f %% contains the true population proportion of all customers who find that most of the time the Container Store has the number and type of home or ofﬁce storage solution that they need.", ques_1_a$l95[2]*100, ques_1_a$r95[2]*100)
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.1f %% and %.1f %% contains the true population proportion of all customers who find that the salespeople at the Container Store appear the be particularly knowledgeable of their products.", ques_1_a$l95[3]*100, ques_1_a$r95[3]*100)
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.1f %% and %.1f %% contains the true population proportion of all customers who find the Container Store hours particularly convienient for themselves.", ques_1_a$l95[4]*100, ques_1_a$r95[4]*100)
+
+```
+
+### Part b.
+
+```{r}
+n <- 21
+ques_list <- c(1:6)
+mean_list <- c(42.4, 44.9, 38.7, 35.6, 34.5, 41.8)
+sd_list <- c(5.2, 3.1, 7.5, 9.2, 12.4, 6.3)
+
+ques_1_b <- data.frame(cbind(ques_list, mean_list, sd_list))
+ques_1_b <- `colnames<-`(ques_1_b, (c("Question No.", "Mean", "SD")))
+ques_1_b
+```
+
+```{r}
+t95 <- qt(0.975, df = n - 1, lower.tail = TRUE)
+
+ques_1_b$l95 <- round( ques_1_b$Mean - (t95 * ques_1_b$SD/sqrt(n)) ,digits = 3)
+ques_1_b$r95 <- round( ques_1_b$Mean + (t95 * ques_1_b$SD/sqrt(n)) ,digits = 3)
+
+ques_1_b
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Are you treated fairly by the company as an employee? ", ques_1_b$l95[1], ques_1_b$r95[1])
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Has the company given you the training that you need to do the job adequately?", ques_1_b$l95[2], ques_1_b$r95[2])
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Does management seriously consider your input in making decisions about the store?", ques_1_b$l95[3], ques_1_b$r95[3])
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Is your physical work environment acceptable?", ques_1_b$l95[4], ques_1_b$r95[4])
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Is the compensation for your work adequate and fair?", ques_1_b$l95[5], ques_1_b$r95[5])
+
+```
+
+```{r}
+sprintf("INTERPRETATION: We are 95 percent confident that the interval between %.2f and %.2f  contains the true population mean of the satisfaction score for the question - Overall, do you feel that company management really cares about you as a person?", ques_1_b$l95[6], ques_1_b$r95[6])
+
+```
+
+## Question 2
+
+### Part 1.
+```{r}
+PaymentTime <- read.csv("PaymentTimeCase.csv")
+
+x_bar <- mean(PaymentTime$PayTime)
+
+n <- nrow(PaymentTime)
+
+sigma <- 4.2
+
+z95 <- qnorm(0.975,  mean = 0, sd = 1, lower.tail = TRUE)
+
+l95 <- round(x_bar - (z95*sigma/sqrt(n)), digits = 3)
+r95 <- round(x_bar + (z95*sigma/sqrt(n)), digits = 3)
+
+sprintf("95 percent Confidence Interval: (%s, %s)", l95, r95)
+
+sprintf("We might be 95 percent confident that the mean payment time for the new billing system for the trcuking company is between %s days and %s days.", l95, r95) 
+
+sprintf("The lower and upper limit of the CI are both under the wanted mean payment time of 19.5 days. This means that we can be 95 percent confident that the billing system was effective.")
+
+```
+### Part 2.
+```{r}
+sprintf("Using the 95 percent confidence interval, we can be 95 percent confident that the mean billing time is under the wanted mean billing time of 19.5 days.")
+```
+### Part 3.
+```{r}
+z99 <- qnorm(0.995,  mean = 0, sd = 1, lower.tail = TRUE)
+
+l99 <- round(x_bar - (z99*sigma/sqrt(n)), digits = 3)
+r99 <- round(x_bar + (z99*sigma/sqrt(n)), digits = 3)
+
+sprintf("99 percent Confidence Interval: (%s, %s)", l99, r99)
+
+sprintf("We might be 99 percent confident that the mean payment time for the new billing system for the trcuking company is between %s days and %s days.", l99, r99) 
+
+sprintf("The lower and upper limit of the CI are both under the wanted mean payment time of 19.5 days. This means that we can be 99 percent confident that the billing system was effective.")
+sprintf("Using the 99 percent confidence interval, we can be 95 percent confident that the mean billing time is under the wanted mean billing time of 19.5 days.")
+
+```
+### Part 4.
+```{r}
+mu <- 19.5
+less_than <- 18.1077
+n_2_4 <- 65
+sd_65 <- 4.2/sqrt(n_2_4)
+pnorm(18.1077, mean = mu, sd = sd_65, lower.tail = TRUE)
+```
+
+## Question 3.
+```{r}
+RealEstate <- read.csv("PremiumRealEstate.csv", header = TRUE, skip = 1)
+
+BeachFacing <- RealEstate[,1:3]
+
+ParkFacing <- RealEstate[1:18, 4:6]
+```
+### Part a.
+```{r}
+summary(BeachFacing)
+```
+```{r}
+boxplot(BeachFacing[, 1:2], main = "Beach Facing Boxplot", horizontal = TRUE)
+```
+```{r}
+boxplot(BeachFacing[, 3], main = "Beach Facing Boxplot - Days to sell", horizontal = TRUE)
+```
+```{r}
+summary(ParkFacing)
+```
+```{r}
+boxplot(ParkFacing[,1:2], main = "Park Facing Boxplot", horizontal = TRUE)
+```
+```{r}
+boxplot(ParkFacing[, 3], main = "Park Facing Boxplot - Days to sell", horizontal = TRUE)
+```
+
+### Insights
+
+```{r}
+sprintf("1. Beach facing townhouses take lesser days on average to sell than Park facing townhouses even though they cost more.
+2. The sale price of Park facing townhouses on average is lesser than that of Beach Facing townhouses.")
+```
+### Part b.
+```{r}
+t95_beachfacing <- qt(0.975, df = 40-1, lower.tail = TRUE)
+s_bf_sale_price <- sd(BeachFacing$SalePrice)
+x_bar_bf_price <- mean(BeachFacing$SalePrice)
+
+(l95_bf_sale_price <- round((x_bar_bf_price - (t95_beachfacing * s_bf_sale_price/sqrt(40))) ,digits = 3))
+(r95_bf_sale_price <- round((x_bar_bf_price + (t95_beachfacing * s_bf_sale_price/sqrt(40))) ,digits = 3))
+
+sprintf("INTERPRETATION: We are 95 percent sure that the mean population sales price of beach facing townhomes lies between $%.2f and $%.2f.", l95_bf_sale_price*1000, r95_bf_sale_price*1000)
+```
+
+```{r}
+s_bf_nds <- sd(BeachFacing$DaysToSell)
+x_bar_bf_nds <- mean(BeachFacing$DaysToSell)
+
+(l95_bf_nds <- round((x_bar_bf_nds - (t95_beachfacing * s_bf_nds/sqrt(40))) ,digits = 3))
+(r95_bf_nds <- round((x_bar_bf_nds + (t95_beachfacing * s_bf_nds/sqrt(40))) ,digits = 3))
+
+sprintf("INTERPRETATION: We are 95 percent sure that the mean population number of days to sell beach facing townhomes lies between %.2f and %.2f days.", l95_bf_nds, r95_bf_nds)
+```
+### Part c.
+```{r}
+t95_parkfacing <- qt(0.975, df = 18-1, lower.tail = TRUE)
+s_pf_sale_price <- sd(ParkFacing$SalePrice)
+x_bar_pf_price <- mean(ParkFacing$SalePrice)
+
+(l95_pf_sale_price <- round((x_bar_pf_price - (t95_parkfacing * s_pf_sale_price/sqrt(40))) ,digits = 3))
+(r95_pf_sale_price <- round((x_bar_pf_price + (t95_parkfacing * s_pf_sale_price/sqrt(40))) ,digits = 3))
+
+sprintf("INTERPRETATION: We are 95 percent sure that the mean population sales price of park facing townhomes lies between $%.2f and $%.2f.", l95_pf_sale_price*1000, r95_pf_sale_price*10000)
+
+```
+```{r}
+s_pf_nds <- sd(ParkFacing$DaysToSell)
+x_bar_pf_nds <- mean(ParkFacing$DaysToSell)
+
+(l95_pf_nds <- round((x_bar_pf_nds - (t95_parkfacing * s_pf_nds/sqrt(40))) ,digits = 3))
+(r95_pf_nds <- round((x_bar_pf_nds + (t95_parkfacing * s_pf_nds/sqrt(40))) ,digits = 3))
+
+sprintf("INTERPRETATION: We are 95 percent sure that the mean population number of days to sell park facing townhomes lies between %.2f and %.2f days.", l95_pf_nds, r95_pf_nds)
+```
+### Part d.
+```{r}
+margin_of_error_bf_sp <- 40
+margin_of_error_pf_sp <- 15
+
+n_bf <- ceiling((t95_beachfacing * s_bf_sale_price/ margin_of_error_bf_sp)^2)
+n_pf <- ceiling((t95_parkfacing * s_pf_sale_price/margin_of_error_pf_sp)^2)
+sprintf("The sample sizes to find estimates of the mean selling price of beach-facing units with a margin of error of $40,000 and the mean selling price of park-facing units with a margin of error of $15,000 are %s for beach-facing units and %s for park-facing units.", n_bf, n_pf)
+
+```
+
+### Part e.
+```{r}
+scatter.smooth(x = BeachFacing$ListPrice, y = BeachFacing$SalePrice)
+```
+
+```{r}
+scatter.smooth(x = BeachFacing$ListPrice, y = BeachFacing$DaysToSell)
+```
+```{r}
+bf_lm_sp <- lm(SalePrice ~ ListPrice,BeachFacing)
+(predicted_bf_sp <- predict(bf_lm_sp, data.frame(ListPrice=c(589))))
+bf_lm_dts <- lm(DaysToSell ~ ListPrice, BeachFacing)
+(predicted_bf_dts <- predict(bf_lm_dts, data.frame(ListPrice = c(589))))
+sprintf("For a beach-facing townhome which has a list price of $589,000, the estimated sale price using the data provided is $%s and the number of days required to sell the townhouse is %s days.", round(predicted_bf_sp*1000, 0), ceiling(predicted_bf_dts))
+```
+```{r}
+scatter.smooth(x = ParkFacing$ListPrice.1, y = ParkFacing$SalePrice.1)
+```
+
+```{r}
+scatter.smooth(x = ParkFacing$ListPrice.1, y = ParkFacing$DaysToSell.1)
+```
+
+```{r}
+pf_lm_sp <- lm(SalePrice.1 ~ ListPrice.1,ParkFacing)
+(predicted_pf_sp <- predict(pf_lm_sp, data.frame(ListPrice.1=c(285))))
+pf_lm_dts <- lm(DaysToSell.1 ~ ListPrice.1, ParkFacing)
+(predicted_pf_dts <- predict(pf_lm_dts, data.frame(ListPrice.1 = c(285))))
+sprintf("For a park-facing townhome which has a list price of $285,000, the estimated sale price using the data provided is $%s and the number of days required to sell the townhouse is %s days.", round(predicted_pf_sp*1000, 0), ceiling(predicted_pf_dts))
+```
+
+## Question 4.
+```{r}
+ques_4 <- read.csv("Question 4.csv")
+
+n_4 <- nrow(ques_4)
+
+lchi_sq <- qchisq(0.025, df = n_4 - 1, ncp = 0, lower.tail = TRUE) 
+uchi_sq <- qchisq(0.025, df = n_4 - 1, ncp = 0, lower.tail = FALSE)
+
+s_bank_A <- sd(ques_4$BankA)
+s_bank_B <- sd(ques_4$BankB)
+
+l95_bank_A <-  round(sqrt((n_4 - 1)*(s_bank_A^2)/uchi_sq), digits = 4)
+r95_bank_A <-  round(sqrt((n_4 - 1)*(s_bank_A^2)/lchi_sq), digits = 4)
+
+sprintf("95 percent Confidence Interval for Bank A: (%s, %s)", l95_bank_A, r95_bank_A)
+
+l95_bank_B <-  round(sqrt((n_4 - 1)*(s_bank_B^2)/uchi_sq), digits = 4)
+r95_bank_B <-  round(sqrt((n_4 - 1)*(s_bank_B^2)/lchi_sq), digits = 4)
+
+sprintf("95 percent Confidence Interval for Bank B: (%s, %s)", l95_bank_B, r95_bank_B)
+
+sprintf("The CI suggest that there is less variation among waiting times when there is a single queue. The single-line system seems a better arrangement than the multi-line system arrangement. ")
+```
+
+## Question 5.
+```{r}
+margin_of_error_5 <- 0.04
+p_hat_5 <- 0.5 #assuming that there is equal number of people say yes and no
+z95 <- qnorm(0.975, mean = 0, sd = 1, lower.tail = TRUE)
+```
+
+### Part a.
+```{r}
+n_5_a <- ceiling(((z95/margin_of_error_5)^2)*p_hat_5*(1-p_hat_5))
+n_5_a
+```
+### Part b.
+```{r}
+p_hat_5_b <- 0.48
+n_5_b <- ceiling(((z95/margin_of_error_5)^2)*p_hat_5_b*(1 - p_hat_5_b))
+n_5_b
+```
+### Part c.
+```{r}
+sprintf("The sample sizes found in a & b are almost equal - having a difference of just 1, but the probability decreased as sample size increased by 2%%.  ")
+```

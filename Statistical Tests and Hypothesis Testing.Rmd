@@ -1,0 +1,252 @@
+---
+title: "Statistical Exploration and Reasoning Assignment 3"
+author: "Mitesh Ranmal Jain"
+date: "10/21/2019"
+output: word_document
+---
+## Question 1
+
+$$\mu_1 = Average\ rating\ of\ exercisers$$
+$$\mu_2 = Average\ rating\ of\ non-exercisers$$
+
+
+$$H_0 : \mu_1 - \mu_2 \leq D_0$$
+$$H_1 : \mu_1 - \mu_2 > D_0$$
+
+### Part a.
+
+```{r}
+question_1 <- read.csv('Question 1.csv')
+exercisers <- question_1[which(question_1$Exerciser == 'Yes'), ]
+non_exercisers <- question_1[which(question_1$Exerciser == 'No'), ]
+
+var.test(exercisers$Rating, non_exercisers$Rating, ratio = 1, alternative = 'two.sided')
+```
+Variances are equal, so run Equal Variance t-test
+
+```{r}
+t.test(exercisers$Rating, non_exercisers$Rating, alternative = "greater", mu = 0, paired = FALSE, var.equal = TRUE)
+```
+$p-value(0.009711)\ is\ less\ than\ \alpha(0.05),\ therefore\ reject\ null\ hypothesis$
+
+### Part b.
+
+$Company\ can\ say\ that\ exercisers\ outperform\ non-exercisers$
+
+## Question 2
+
+$$\mu_1 = Average\ appraised\ value$$
+$$\mu_2 = Average\ selling\ price$$
+
+$$H_0 : \mu_1 - \mu_2 \leq D_0$$
+$$H_1 : \mu_1 - \mu_2 > D_0$$
+
+```{r}
+question_2 <- read.csv('Question 2.csv')
+```
+
+$$\alpha = 0.05$$
+
+```{r}
+var.test(question_2$Value, question_2$Price, ratio = 1, alternative = 'two.sided')
+```
+Variances are not equal, so run Unequal Variance t-test
+```{r}
+t.test(question_2$Value, question_2$Price, alternative = 'two.sided', mu = 0, paired = TRUE, var.equal = FALSE)
+```
+$p-value(0.7236)\ is\ greater\ than\ \alpha(0.05),\ therefore\ do\ not\ reject\ null\ hypothesis$
+
+$$\alpha = 0.01$$
+
+```{r}
+var.test(question_2$Value, question_2$Price, ratio = 1, alternative = 'two.sided', conf.level = 0.99)
+```
+Variances are not equal, so run Unequal Variance t-test
+
+```{r}
+t.test(question_2$Value, question_2$Price, alternative = 'two.sided', mu = 0, paired = TRUE, var.equal = FALSE, conf.level = 0.99)
+```
+p-value(0.7236) is greater than 0.01, therefore do not reject null hypothesis
+
+$$\alpha = 0.1$$
+
+```{r}
+var.test(question_2$Value, question_2$Price, ratio = 1, alternative = 'two.sided', conf.level = 0.9)
+```
+Variances are equal, so run equal Variance t-test
+
+```{r}
+t.test(question_2$Value, question_2$Price, alternative = 'two.sided', mu = 0, paired = TRUE, var.equal = TRUE, conf.level = 0.9)
+```
+$p-value(0.7236)\ is\ greater\ than\ \alpha(0.01),\ therefore\ do\ not\ reject\ null\ hypothesis$
+
+## Question 3
+
+$$\sigma_1 = Variance\ in\ service\ time\ for\ Teller\ 1$$
+$$\sigma_2 = Variance\ in\ service\ time\ for\ Teller\ 2$$
+
+$$H0 : \sigma_1/\sigma_2 = 1$$
+$$H1 : \sigma_1/\sigma_2 \neq 1$$
+
+```{r}
+question_3 <- read.csv('Question 3.csv')
+
+var.test(question_3$Teller1, question_3$Teller2, ratio = 1, alternative = 'two.sided', conf.level = 0.9)
+```
+$p-value\ is\ 1.045e^{-08},\ which\ means\ it\ is\ statistically\ significant\ so\ reject\ H_0$
+$Therefore\ the\ variance\ in\ service\ times\ differs\ between\ the\ 2\ tellers$
+
+## Question 4
+
+$$p_1 = Proportion\ of\ people\ who\ took\ Vioxx\ and\ developed\ heart\ problems$$
+$$p_2 = Proportion\ of\ people\ who\ took\ placebos\ and\ developed\ heart\ problems$$
+
+$$H_0: p_1 - p_2 \leq 0$$
+$$H_1: p_1 - p_2 > 0$$
+
+```{r}
+prop.test(c(45, 25), c(1287, 1299), alternative = 'greater', correct = FALSE)
+```
+
+```{r}
+(pop_vioxx = 2000000*(0.03496503))
+```
+
+Population  = 69931
+
+```{r}
+(pop_not_vioxx = 2000000*(0.01924557))
+```
+
+$Population that got heart problems by taking placebos = 38492$
+
+## Question 5
+
+$$p_1 = Proportion\ of\ retention\ after\ getting\ health\ benefits$$
+$$p_2 = Proportion\ of\ retention\ after\ getting\ vacation\ benefits$$
+
+$$H_0: p_1 - p_2 \geq 0.05$$
+$$H_1: p_1 - p_2 < 0.05$$
+
+```{r}
+question_5 <- read.csv('Question 5.csv')
+table(question_5)
+```
+
+### Part a.
+
+### Part b.
+```{r}
+p_health_hat = 107/125
+p_vacation_hat = 109/140
+denom = sqrt(((p_health_hat)*(1 - p_health_hat)/125) + ((p_vacation_hat)*(1 - p_vacation_hat)/140))
+
+z_5_b = ((p_health_hat - p_vacation_hat) - 0.05)/ denom
+pnorm(z_5_b, lower.tail = FALSE)
+```
+$p-value\ is\ 0.28\ which\ is\ greater\ than\ \alpha(0.05), therefore statistically not significant\\Hence\ faliure\ to\ reject\ the\ null\ hypothesis$
+### Part c.
+```{r}
+prop.test(c(107, 109), c(125, 140), alternative = 'greater', correct = FALSE)
+```
+$p-value = 0.9475$
+
+## Question 6
+
+```{r}
+question_6 <- read.csv('Question 6.csv')
+```
+
+### Part a.
+
+$$\mu_1 = Average\ RINCOME\ in\ year\ 2000$$
+$$\mu_2 = Average\ RINCOME\ in\ year\ 2008$$
+
+$$H_0 : \mu_1 - \mu_2 \geq 0\ \ i.e.\ income\ does\ not\ increase$$
+$$H_1 : \mu1 - \mu2 < 0\ \ i.e.\ income\ does\ increase$$
+
+```{r}
+var.test(question_6$RINCOME_2000, question_6$RINCOME_2008, ratio = 1, alternative = 'two.sided')
+```
+
+Variances are not equal, so run unequal Variance t-test
+
+```{r}
+t.test(question_6$RINCOME_2000, question_6$RINCOME_2008, alternative = 'less', var.equal = FALSE, paired = FALSE)
+### 
+### 
+```
+$p-value\ (2.29e^{-16})\ is\ statistically\ significant,\ and\ we\ reject\ the\ null\ hypothesis\\Income\ has\ increased\ between\ 2000\ and\ 2008$
+
+### Part b.
+
+$$\mu_1 = Average\ RINCOME\ in\ year\ 2008$$
+$$\mu_2 = Average\ RINCOME\ in\ year\ 2014$$
+
+$$H_0 : \mu_1 - \mu_2 \geq 0\ \ i.e.\ income\ does\ not\ increase$$
+$$H_1 : \mu1 - \mu2 < 0 \ \ i.e.\ income\ does\ increase$$
+
+```{r}
+var.test(question_6$RINCOME_2008, question_6$RINCOME_2014, ratio = 1, alternative = 'two.sided')
+```
+Variances are not equal, so run unequal Variance t-test
+
+```{r}
+t.test(question_6$RINCOME_2008, question_6$RINCOME_2014, alternative = 'less', var.equal = FALSE, paired = FALSE)
+```
+
+p-value(0.002308) is statistically significant, so we reject the null hypothesis
+
+### Part c.
+```{r}
+cpi_data = readxl::read_xlsx('U.S. CPI Annual.xlsx')
+
+cpi_2000 = cpi_data[which(cpi_data$Year == '2000'), 2 ]
+cpi_2008 = cpi_data[which(cpi_data$Year == '2008'), 2 ]
+cpi_2014 = cpi_data[which(cpi_data$Year == '2014'), 2 ]
+```
+$$\mu_1 = Average\ adjusted\ RINCOME\ in\ 2008$$
+$$\mu_2 = Average\ RINCOME\ in\ 2008$$
+
+$$H_0 : \mu_1 - \mu_2 \geq 0 \ \ i.e.\ income\ did\ not\ increase$$
+$$H_1 : \mu_1 - \mu_2 < 0\ \ i.e.\ income\ increased$$
+```{r}
+adj_rincome_2008_2000 <- question_6$RINCOME_2000*(215.25500/172.1917)
+
+var.test(adj_rincome_2008_2000, question_6$RINCOME_2008, ratio = 1, alternative = 'two.sided')
+```
+Variances are not equal, so run unequal Variance t-test
+
+```{r}
+t.test(adj_rincome_2008_2000, question_6$RINCOME_2008, alternative = 'less', var.equal = FALSE, paired = FALSE)
+```
+P-VALUE(0.05485) is not statistically significant, so we cannot reject the null hypothesis
+
+Income has not increased between 2000 and 2008 when inflation is adjusted
+
+### Part d.
+
+$$\mu_1 = Average\ adjusted\ RINCOME\ in\ 2014$$
+$$\mu_2 = Average\ RINCOME\ in\ 2014$$
+
+
+$$H_0 : \mu_1 - \mu_2 \geq 0 \ \ i.e.\ income\ did\ not\ increase$$
+$$H_1 : \mu_1 - \mu_2 < 0\ \ i.e.\ income\ increased$$
+
+
+
+```{r}
+adj_rincome_2014_2008 <- question_6$RINCOME_2008*(236.715/215.25500)
+
+var.test(adj_rincome_2014_2008, question_6$RINCOME_2014, ratio = 1, alternative = 'two.sided')
+```
+Variances are equal, so run equal Variance t-test
+
+```{r}
+t.test(adj_rincome_2014_2008, question_6$RINCOME_2014, alternative = 'less', var.equal = TRUE, paired = FALSE)
+```
+$P-VALUE(0.4849)\ is\ not\ statistically\ significant,\ so\ we\ cannot\ reject\ the\ null\ hypothesis\\Income\ has\ NOT\ increased\ between\ 2008\ and\ 2014\ when\ inflation\ is\ adjusted$
+
+### Part e.
+
+
